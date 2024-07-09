@@ -1,11 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { DateRange } from 'react-date-range';
+import { addDays, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import History from '../history/page'; // Updated path
 
 export default function Dashboard() {
   const [userName, setUserName] = useState('Zayar');
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 7),
+      key: 'selection'
+    }
+  ]);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const handleNewIncomeClick = () => {
     setIsIncomeModalOpen(true);
@@ -20,9 +33,23 @@ export default function Dashboard() {
     setIsExpenseModalOpen(false);
   };
 
+  const handleDateRangeChange = (ranges) => {
+    setDateRange([ranges.selection]);
+  };
+
+  const formatDateRange = (range) => {
+    const start = range[0].startDate.toLocaleDateString();
+    const end = range[0].endDate.toLocaleDateString();
+    return `${start} - ${end}`;
+  };
+
+  const setPresetDateRange = (startDate, endDate) => {
+    setDateRange([{ startDate, endDate, key: 'selection' }]);
+  };
+
   return (
     <div className="container mx-auto mt-8 px-4">
-      <div className="flex justify-between items-center text-gray-800 dark:text-gray-200">
+      <div className="flex justify-between items-center text-gray-800 dark:text-gray-200 mb-8">
         <h1 className="text-2xl font-bold">
           Hello, {userName}! <span className="wave-emoji">👋</span>
         </h1>
@@ -39,6 +66,113 @@ export default function Dashboard() {
           >
             New expense <span className="ml-2">🤯</span>
           </button>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-xl font-bold">Overview</h2>
+        <button 
+          className="bg-gray-700 text-white px-4 py-2 rounded-md"
+          onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+        >
+          {formatDateRange(dateRange)}
+        </button>
+      </div>
+
+      {isDatePickerOpen && (
+        <div className="relative mb-8">
+          <div className="absolute right-0 flex bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div>
+              <DateRange
+                editableDateInputs={true}
+                onChange={handleDateRangeChange}
+                moveRangeOnFirstSelection={false}
+                ranges={dateRange}
+              />
+            </div>
+            <div className="ml-4 flex flex-col justify-around">
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(new Date(), new Date())}
+              >
+                Today
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(subDays(new Date(), 1), subDays(new Date(), 1))}
+              >
+                Yesterday
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(subDays(new Date(), 6), new Date())}
+              >
+                Last 7 days
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(subDays(new Date(), 13), new Date())}
+              >
+                Last 14 days
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(subDays(new Date(), 29), new Date())}
+              >
+                Last 30 days
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(startOfWeek(new Date()), endOfWeek(new Date()))}
+              >
+                This Week
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(startOfWeek(subDays(new Date(), 7)), endOfWeek(subDays(new Date(), 7)))}
+              >
+                Last Week
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(startOfMonth(new Date()), endOfMonth(new Date()))}
+              >
+                This Month
+              </button>
+              <button
+                className="text-gray-700 dark:text-gray-200 hover:text-black"
+                onClick={() => setPresetDateRange(startOfMonth(subMonths(new Date(), 1)), endOfMonth(subMonths(new Date(), 1)))}
+              >
+                Last Month
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h3 className="text-gray-700 dark:text-gray-200">Income</h3>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h3 className="text-gray-700 dark:text-gray-200">Expense</h3>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h3 className="text-gray-700 dark:text-gray-200">Balance</h3>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h3 className="text-gray-700 dark:text-gray-200">Incomes by category</h3>
+          <p className="text-gray-500 dark:text-gray-400">No data for the selected period. Try selecting a different period or try adding new incomes.</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h3 className="text-gray-700 dark:text-gray-200">Expenses by category</h3>
+          <p className="text-gray-500 dark:text-gray-400">No data for the selected period. Try selecting a different period or try adding new expenses.</p>
         </div>
       </div>
 
@@ -179,6 +313,8 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <History />
     </div>
   );
 }
