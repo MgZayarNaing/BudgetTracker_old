@@ -2,19 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Set initial mode based on system preference or saved preference
     const savedMode = localStorage.getItem('theme');
     if (savedMode) {
       toggleMode(savedMode);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       toggleMode('dark');
+    }
+
+    const userInfo = localStorage.getItem('user');
+    if (userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        if (parsedUser && typeof parsedUser === 'object') {
+          setUser(parsedUser);
+        } else {
+          console.error('Invalid user data found in localStorage');
+          localStorage.removeItem('user');
+        }
+      } catch (error) {
+        console.error('Error parsing user data from localStorage', error);
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
@@ -30,12 +47,21 @@ const Header = () => {
     }
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    axios.defaults.headers.common['Authorization'] = '';
+    setUser(null);
+    window.location.href = '/login';
+  };
+
   return (
     <header className="bg-white dark:bg-gray-800 shadow">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="flex items-center">
           <img src="/logo.png" alt="Logo" className="h-8 w-8" />
-          <h1 className="ml-2 text-xl font-bold text-orange-500">BudgetTracker</h1>
+          <Link href="/dashboard" className="ml-2 text-xl font-bold text-orange-500">BudgetTracker</Link>
         </div>
         <div className="hidden md:flex space-x-4">
           <Link href="/dashboard" className="text-gray-800 dark:text-gray-200 hover:text-black">
@@ -112,20 +138,22 @@ const Header = () => {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white focus:outline-none"
             >
-              Z
+              {user ? user.username[0] : 'Z'}
             </button>
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
-                <div className="px-4 py-2">
-                  <div className="text-sm text-gray-800 dark:text-gray-200 font-semibold">Zayar Naing</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">zayarnaing.st@gmail.com</div>
-                </div>
+                {user && (
+                  <div className="px-4 py-2">
+                    <div className="text-sm text-gray-800 dark:text-gray-200 font-semibold">{user.username}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                  </div>
+                )}
                 <div className="border-t border-gray-200 dark:border-gray-600"></div>
-                <Link href="/manage">
+                <Link href="/profile">
                   <span className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Manage account</span>
                 </Link>
                 <span
-                  onClick={() => alert('Sign out')}
+                  onClick={handleSignOut}
                   className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
                   Sign out
