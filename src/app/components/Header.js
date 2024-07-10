@@ -5,6 +5,8 @@ import Link from 'next/link';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     // Set initial mode based on system preference or saved preference
@@ -35,17 +37,17 @@ const Header = () => {
           <img src="/logo.png" alt="Logo" className="h-8 w-8" />
           <h1 className="ml-2 text-xl font-bold text-orange-500">BudgetTracker</h1>
         </div>
-        <nav className="flex space-x-4">
-          <Link href="/dashboard">
-            <span className="text-gray-800 dark:text-gray-200 hover:text-black">Dashboard</span>
+        <div className="hidden md:flex space-x-4">
+          <Link href="/dashboard" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Dashboard
           </Link>
-          <Link href="/transactions">
-            <span className="text-gray-800 dark:text-gray-200 hover:text-black">Transactions</span>
+          <Link href="/transactions" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Transactions
           </Link>
-          <Link href="/manage">
-            <span className="text-gray-800 dark:text-gray-200 hover:text-black">Manage</span>
+          <Link href="/manage" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Manage
           </Link>
-        </nav>
+        </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => toggleMode(isDarkMode ? 'light' : 'dark')}
@@ -85,10 +87,68 @@ const Header = () => {
               </svg>
             )}
           </button>
-          <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-            Z
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 md:hidden"
+          >
+            <svg
+              className="w-[20px] h-[20px] text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white focus:outline-none"
+            >
+              Z
+            </button>
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2">
+                <div className="px-4 py-2">
+                  <div className="text-sm text-gray-800 dark:text-gray-200 font-semibold">Zayar Naing</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">zayarnaing.st@gmail.com</div>
+                </div>
+                <div className="border-t border-gray-200 dark:border-gray-600"></div>
+                <Link href="/manage">
+                  <span className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Manage account</span>
+                </Link>
+                <span
+                  onClick={() => alert('Sign out')}
+                  className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                >
+                  Sign out
+                </span>
+              </div>
+            )}
           </div>
         </div>
+      </div>
+      <div
+        className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}
+      >
+        <nav className="flex flex-col space-y-2 p-4">
+          <Link href="/dashboard" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Dashboard
+          </Link>
+          <Link href="/transactions" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Transactions
+          </Link>
+          <Link href="/manage" className="text-gray-800 dark:text-gray-200 hover:text-black">
+            Manage
+          </Link>
+        </nav>
       </div>
     </header>
   );

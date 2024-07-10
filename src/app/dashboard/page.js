@@ -69,7 +69,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8  dark:text-gray-200">
         <h2 className="text-xl font-bold">Overview</h2>
         <button 
           className="bg-gray-700 text-white px-4 py-2 rounded-md"
@@ -81,7 +81,7 @@ export default function Dashboard() {
 
       {isDatePickerOpen && (
         <div className="relative mb-8">
-          <div className="absolute right-0 flex bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <div className="absolute right-0 flex bg-white  dark:text-gray-200 p-4 rounded-lg shadow">
             <div>
               <DateRange
                 editableDateInputs={true}
