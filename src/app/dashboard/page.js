@@ -1,11 +1,11 @@
 'use client';
-import AuthGuard from '../components/AuthGuard';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DateRange } from 'react-date-range';
 import { addDays, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import 'react-date-range/dist/styles.css'; // main css file
-import 'react-date-range/dist/theme/default.css'; // theme css file
-import History from '../history/page'; // Updated path
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import History from '../history/page';
+import { getUserDetail } from '../api/api';
 
 export default function Dashboard() {
   const [userName, setUserName] = useState('Zayar');
@@ -19,6 +19,21 @@ export default function Dashboard() {
     }
   ]);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchUserDetail = async () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.uuid) {
+        try {
+          const userDetails = await getUserDetail(user.uuid);
+          console.log(userDetails);
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    };
+    fetchUserDetail();
+  }, []);
 
   const handleNewIncomeClick = () => {
     setIsIncomeModalOpen(true);
@@ -48,7 +63,6 @@ export default function Dashboard() {
   };
 
   return (
-    
       <div className="container mx-auto mt-8 px-4">
         <div className="flex justify-between items-center text-gray-800 dark:text-gray-200 mb-8">
           <h1 className="text-2xl font-bold">
@@ -70,7 +84,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-8  dark:text-gray-200">
+        <div className="flex justify-between items-center mb-8 dark:text-gray-200">
           <h2 className="text-xl font-bold">Overview</h2>
           <button
             className="bg-gray-700 text-white px-4 py-2 rounded-md"
@@ -82,7 +96,7 @@ export default function Dashboard() {
 
         {isDatePickerOpen && (
           <div className="relative mb-8">
-            <div className="absolute right-0 flex bg-white  dark:text-gray-200 p-4 rounded-lg shadow">
+            <div className="absolute right-0 flex bg-white dark:text-gray-200 p-4 rounded-lg shadow">
               <div>
                 <DateRange
                   editableDateInputs={true}
@@ -317,6 +331,5 @@ export default function Dashboard() {
 
         <History />
       </div>
-    
   );
 }
